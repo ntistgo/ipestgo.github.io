@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>SIMULADOR DE CONTRIBUIÇÃO - PLANO CONTRATANTES</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .logos { display: flex; align-items: center; justify-content: center; gap: 40px; margin-bottom: 20px; }
+    .logos img { height: 80px; }
+    h2 { text-align: center; margin-bottom: 10px; }
+    .orientacoes { max-width: 700px; margin: 0 auto 20px auto; }
+    .orientacoes p { margin: 4px 0; }
+    table { border-collapse: collapse; margin: 0 auto; }
+    th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: center; }
+    th { background: #eee; }
+    input { width: 70px; text-align: center; }
+    tfoot td { font-weight: bold; background: #f9f9f9; }
+    .btn-container { text-align: center; margin-top: 15px; }
+    button { padding: 8px 16px; font-size: 14px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <!-- Logos -->
+  <div class="logos">
+    <img src="stgo.png" alt="Prefeitura de Santiago">
+    <img src="ipe.png" alt="IPE Saúde">
+  </div>
+
+  <!-- Título -->
+  <h2>Simulador de Contribuição - Plano Contratantes</h2>
+
+  <!-- Orientações -->
+  <div class="orientacoes">
+    <p><strong>Orientações de preenchimento:</strong></p>
+    <p>1. Informe a idade do titular e de cada dependente;</p>
+    <p>2. Digite apenas números inteiros. Para bebês com menos de 1 ano, informe 1;</p>
+    <p>3. Deixe em branco as células que não forem utilizadas;</p>
+    <p>4. Não informe dependentes PAC (não se aplica).</p>
+  </div>
+
+  <!-- Tabela -->
+  <table id="tabelaUsuarios">
+    <thead>
+      <tr><th>Usuário</th><th>Idade</th><th>Contribuição (R$)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Segurado Titular</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 01</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 02</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 03</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 04</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 05</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 06</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 07</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 08</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 09</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+      <tr><td>Dependente 10</td><td><input type="number" min="1" max="130"></td><td></td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td colspan="2">Contribuição Total</td><td id="total">R$ 0,00</td></tr>
+    </tfoot>
+  </table>
+
+  <!-- Botão Limpar -->
+  <div class="btn-container">
+    <button onclick="limparTabela()">Limpar tabela</button>
+  </div>
+
+  <!-- Importante -->
+  <div class="orientacoes">
+    <p><strong>Importante:</strong></p>
+    <p>1. Este Simulador se aplica somente a usuários do Plano Contratantes (Prefeituras, Câmaras e Fundações). Outros planos, como PAC e Optantes, possuem tabelas próprias de contribuição;</p>
+    <p>2. A Contribuição por faixa etária será aplicada a partir de 1º de julho de 2025;</p>
+    <p>3. Não há diferença de contribuição entre titular e dependente;</p>
+    <p>4. O Contratante (Prefeitura, Câmara ou Fundação) poderá instituir algum subisídio ou auxílio que reduza a "Contribuição Total" devida pelo segurado;</p>
+    <p>5. A Tabela de Contribuição será atualizada em 01/07/2026;</p>
+    <p>6. Este modelo de contribuição foi instituído pela Instrução Normativa nº 04/2025.</p>
+  </div>
+
+  <script>
+    // tabela de faixas etárias
+    const faixas = [
+      {min:1, max:18, valor:93.12},
+      {min:19, max:23, valor:113.32},
+      {min:24, max:28, valor:140.39},
+      {min:29, max:33, valor:156.90},
+      {min:34, max:38, valor:186.00},
+      {min:39, max:43, valor:222.91},
+      {min:44, max:48, valor:321.18},
+      {min:49, max:53, valor:349.62},
+      {min:54, max:58, valor:440.50},
+      {min:59, max:130, valor:558.60}
+    ];
+
+    // função que encontra a contribuição pela idade (dividida por 2)
+    function calcularContribuicao(idade) {
+      for (const faixa of faixas) {
+        if (idade >= faixa.min && idade <= faixa.max) {
+          return faixa.valor / 2;
+        }
+      }
+      return 0;
+    }
+
+    function atualizarTabela() {
+      let total = 0;
+      const linhas = document.querySelectorAll("#tabelaUsuarios tbody tr");
+
+      linhas.forEach(linha => {
+        const idade = parseInt(linha.querySelector("input").value);
+        const celulaContrib = linha.children[2];
+
+        if (!isNaN(idade) && idade > 0) {
+          const valor = calcularContribuicao(idade);
+          celulaContrib.textContent = "R$ " + valor.toFixed(2).replace(".", ",");
+          total += valor;
+        } else {
+          celulaContrib.textContent = "";
+        }
+      });
+
+      document.getElementById("total").textContent = "R$ " + total.toFixed(2).replace(".", ",");
+    }
+
+    function limparTabela() {
+      document.querySelectorAll("#tabelaUsuarios input").forEach(input => input.value = "");
+      document.querySelectorAll("#tabelaUsuarios tbody td:nth-child(3)").forEach(td => td.textContent = "");
+      document.getElementById("total").textContent = "R$ 0,00";
+    }
+
+    // adiciona evento em todos os campos de idade
+    document.querySelectorAll("#tabelaUsuarios input").forEach(input => {
+      input.addEventListener("input", atualizarTabela);
+    });
+  </script>
+</body>
+</html>
