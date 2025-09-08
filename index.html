@@ -78,60 +78,66 @@
   </div>
 
   <script>
-    // tabela de faixas etárias
-    const faixas = [
-      {min:1, max:18, valor:93.12},
-      {min:19, max:23, valor:113.32},
-      {min:24, max:28, valor:140.39},
-      {min:29, max:33, valor:156.90},
-      {min:34, max:38, valor:186.00},
-      {min:39, max:43, valor:222.91},
-      {min:44, max:48, valor:321.18},
-      {min:49, max:53, valor:349.62},
-      {min:54, max:58, valor:440.50},
-      {min:59, max:130, valor:558.60}
-    ];
+  // tabela de faixas etárias
+  const faixas = [
+    {min:1, max:18, valor:93.12},
+    {min:19, max:23, valor:113.32},
+    {min:24, max:28, valor:140.39},
+    {min:29, max:33, valor:156.90},
+    {min:34, max:38, valor:186.00},
+    {min:39, max:43, valor:222.91},
+    {min:44, max:48, valor:321.18},
+    {min:49, max:53, valor:349.62},
+    {min:54, max:58, valor:440.50},
+    {min:59, max:130, valor:558.60}
+  ];
 
-    // função que encontra a contribuição pela idade (dividida por 2)
-    function calcularContribuicao(idade) {
-      for (const faixa of faixas) {
-        if (idade >= faixa.min && idade <= faixa.max) {
-          return faixa.valor / 2;
-        }
+  // formatação moeda BRL
+  const formatarMoeda = valor =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+
+  // encontra contribuição pela idade
+  function calcularContribuicao(idade, isTitular) {
+    for (const faixa of faixas) {
+      if (idade >= faixa.min && idade <= faixa.max) {
+        return isTitular ? faixa.valor / 2 : faixa.valor;
       }
-      return 0;
     }
+    return 0;
+  }
 
-    function atualizarTabela() {
-      let total = 0;
-      const linhas = document.querySelectorAll("#tabelaUsuarios tbody tr");
+  function atualizarTabela() {
+    let total = 0;
+    const linhas = document.querySelectorAll("#tabelaUsuarios tbody tr");
 
-      linhas.forEach(linha => {
-        const idade = parseInt(linha.querySelector("input").value);
-        const celulaContrib = linha.children[2];
+    linhas.forEach((linha, index) => {
+      const idade = parseInt(linha.querySelector("input").value);
+      const celulaContrib = linha.children[2];
+      const isTitular = index === 0; // primeira linha é o Segurado Titular
 
-        if (!isNaN(idade) && idade > 0) {
-          const valor = calcularContribuicao(idade);
-          celulaContrib.textContent = "R$ " + valor.toFixed(2).replace(".", ",");
-          total += valor;
-        } else {
-          celulaContrib.textContent = "";
-        }
-      });
-
-      document.getElementById("total").textContent = "R$ " + total.toFixed(2).replace(".", ",");
-    }
-
-    function limparTabela() {
-      document.querySelectorAll("#tabelaUsuarios input").forEach(input => input.value = "");
-      document.querySelectorAll("#tabelaUsuarios tbody td:nth-child(3)").forEach(td => td.textContent = "");
-      document.getElementById("total").textContent = "R$ 0,00";
-    }
-
-    // adiciona evento em todos os campos de idade
-    document.querySelectorAll("#tabelaUsuarios input").forEach(input => {
-      input.addEventListener("input", atualizarTabela);
+      if (!isNaN(idade) && idade > 0) {
+        const valor = calcularContribuicao(idade, isTitular);
+        celulaContrib.textContent = formatarMoeda(valor);
+        total += valor;
+      } else {
+        celulaContrib.textContent = "";
+      }
     });
-  </script>
+
+    document.getElementById("total").textContent = formatarMoeda(total);
+  }
+
+  function limparTabela() {
+    document.querySelectorAll("#tabelaUsuarios input").forEach(input => input.value = "");
+    document.querySelectorAll("#tabelaUsuarios tbody td:nth-child(3)").forEach(td => td.textContent = "");
+    document.getElementById("total").textContent = formatarMoeda(0);
+  }
+
+  // adiciona evento em todos os campos de idade
+  document.querySelectorAll("#tabelaUsuarios input").forEach(input => {
+    input.addEventListener("input", atualizarTabela);
+  });
+</script>
+
 </body>
 </html>
